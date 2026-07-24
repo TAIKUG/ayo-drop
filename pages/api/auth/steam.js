@@ -1,7 +1,10 @@
-// pages/api/auth/steam.js
+/// pages/api/auth/steam.js
 export default function handler(req, res) {
-  const returnUrl = 'http://localhost:3000/api/auth/steam-callback';
-  const realm = 'http://localhost:3000';
+  // ⚠️ ЗАМЕНИ ЭТОТ АДРЕС НА СВОЙ VERCEL!
+  const siteUrl = 'ayo-drop-9ia9gfsi9-ayo-drop.vercel.app'; // ← ТВОЙ АДРЕС
+  
+  const returnUrl = `${ayo-drop-9ia9gfsi9-ayo-drop.vercel.app}/api/auth/steam-callback`;
+  const realm = ayo-drop-9ia9gfsi9-ayo-drop.vercel.app;
 
   const params = new URLSearchParams({
     'openid.ns': 'http://specs.openid.net/auth/2.0',

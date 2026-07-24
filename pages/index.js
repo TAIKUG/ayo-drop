@@ -54,7 +54,7 @@ export default function Home() {
             <h2>Вход через Steam</h2>
             <p style={{ color: '#9299ad' }}>Нажмите на кнопку, чтобы войти</p>
             <br />
-            <a href="/api/auth/steam" style={{
+            <a href="/api/auth/steam" target="_blank" style={{
               display: 'inline-block',
               background: 'linear-gradient(135deg, #6e38e7, #9d73ff)',
               color: '#fff',
