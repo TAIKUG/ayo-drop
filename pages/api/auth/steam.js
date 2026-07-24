@@ -1,10 +1,9 @@
-/// pages/api/auth/steam.js
+// pages/api/auth/steam.js
 export default function handler(req, res) {
-  // ⚠️ ЗАМЕНИ ЭТОТ АДРЕС НА СВОЙ VERCEL!
-  const siteUrl = 'ayo-drop-9ia9gfsi9-ayo-drop.vercel.app'; // ← ТВОЙ АДРЕС
-  
-  const returnUrl = `${ayo-drop-9ia9gfsi9-ayo-drop.vercel.app}/api/auth/steam-callback`;
-  const realm = ayo-drop-9ia9gfsi9-ayo-drop.vercel.app;
+  const siteUrl = 'https://ayo-drop-9ia9gfsi9-ayo-drop.vercel.app'; // ← В КАВЫЧКАХ И С https://
+
+  const returnUrl = `${siteUrl}/api/auth/steam-callback`;
+  const realm = siteUrl;
 
   const params = new URLSearchParams({
     'openid.ns': 'http://specs.openid.net/auth/2.0',
