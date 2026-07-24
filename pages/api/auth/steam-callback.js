@@ -30,11 +30,11 @@ export default async function handler(req, res) {
     );
     const profile = profileRes.data.response.players[0];
 
-    // 5. РЕДИРЕКТ НА TILDA С ПАРАМЕТРАМИ
+    // 5. РЕДИРЕКТ НА TILDA
     const tildaUrl = 'https://ayo-drop.tilda.ws'; // ← ТВОЙ TILDA
     const redirectUrl = `${tildaUrl}/?auth=success&name=${encodeURIComponent(profile.personaname)}&avatar=${encodeURIComponent(profile.avatar)}&id=${steamId}`;
     
-    // Отправляем HTML с редиректом
+    // Делаем редирект через HTML
     res.send(`
       <!DOCTYPE html>
       <html>
