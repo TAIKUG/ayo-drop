@@ -1,0 +1,51 @@
+// pages/api/auth/steam-callback.js
+import axios from 'axios';
+
+export default async function handler(req, res) {
+  try {
+    if (!req.query['openid.claimed_id']) {
+      return res.status(400).send('Нет данных от Steam');
+    }
+
+    const params = { ...req.query, 'openid.mode': 'check_authentication' };
+    const response = await axios.post(
+      'https://steamcommunity.com/openid/login',
+      new URLSearchParams(params).toString(),
+      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+    );
+
+    if (!response.data.includes('is_valid:true')) {
+      return res.status(403).send('Недействительный ответ от Steam');
+    }
+
+    const steamId = req.query['openid.claimed_id'].replace('http://steamcommunity.com/openid/id/', '');
+
+    const apiKey = '661358F444F2632DDE5B819102F4C5F3'; // ← ЗАМЕНИ НА СВОЙ!
+    const profileRes = await axios.get(
+      `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${apiKey}&steamids=${steamId}`
+    );
+    const profile = profileRes.data.response.players[0];
+
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+        <head><title>Вход выполнен</title></head>
+        <body>
+          <script>
+            localStorage.setItem('steam_user', JSON.stringify({
+              uid: '${steamId}',
+              name: '${profile.personaname}',
+              avatar: '${profile.avatar}',
+              profileUrl: '${profile.profileurl}'
+            }));
+            window.location.href = '/';
+          </script>
+        </body>
+      </html>
+    `);
+
+  } catch (error) {
+    console.error('Ошибка:', error);
+    res.status(500).send('Ошибка авторизации');
+  }
+}
