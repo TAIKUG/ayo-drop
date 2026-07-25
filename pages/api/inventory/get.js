@@ -1,20 +1,22 @@
-export default async function handler(req, res) {
-  // Проверяем переменные окружения
-  const envCheck = {
-    PROJECT_ID: !!process.env.FIREBASE_PROJECT_ID,
-    CLIENT_EMAIL: !!process.env.FIREBASE_CLIENT_EMAIL,
-    PRIVATE_KEY: !!process.env.FIREBASE_PRIVATE_KEY,
-    PRIVATE_KEY_LENGTH: process.env.FIREBASE_PRIVATE_KEY ? process.env.FIREBASE_PRIVATE_KEY.length : 0,
-  };
-  
-  // Если нет PRIVATE_KEY — сразу показываем ошибку
-  if (!process.env.FIREBASE_PRIVATE_KEY) {
-    return res.status(500).json({ 
-      error: 'Нет FIREBASE_PRIVATE_KEY',
-      env: envCheck 
-    });
-  }
+import admin from 'firebase-admin';
 
+// ===== ИНИЦИАЛИЗАЦИЯ FIREBASE =====
+if (!admin.apps.length) {
+  try {
+    admin.initializeApp({
+      credential: admin.credential.cert({
+        projectId: process.env.FIREBASE_PROJECT_ID,
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+        privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
+      })
+    });
+    console.log('✅ Firebase инициализирован');
+  } catch (error) {
+    console.error('❌ Ошибка инициализации Firebase:', error.message);
+  }
+}
+
+export default async function handler(req, res) {
   const { steamId } = req.query;
 
   if (!steamId) {
@@ -22,15 +24,21 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Просто возвращаем тестовые данные, чтобы проверить, что API работает
-    res.json({ 
-      status: 'ok', 
-      steamId: steamId,
-      env: envCheck,
-      message: 'API работает, но Firebase не подключён' 
-    });
+    // Проверяем, что Firebase инициализирован
+    if (!admin.apps.length) {
+      throw new Error('Firebase не инициализирован');
+    }
+
+    const db = admin.firestore();
+    const doc = await db.collection('inventory').doc(steamId).get();
+    const items = doc.exists ? doc.data().items || [] : [];
+
+    res.json({ items });
   } catch (error) {
-    console.error('Ошибка:', error);
-    res.status(500).json({ error: error.message });
+    console.error('❌ Ошибка получения инвентаря:', error.message);
+    res.status(500).json({ 
+      error: 'Ошибка сервера', 
+      message: error.message 
+    });
   }
 }
