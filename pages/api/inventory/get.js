@@ -1,6 +1,7 @@
 // pages/api/inventory/get.js
 import admin from 'firebase-admin';
 
+// ===== ИНИЦИАЛИЗАЦИЯ FIREBASE =====
 if (!admin.apps || !admin.apps.length) {
   try {
     admin.initializeApp({
@@ -10,13 +11,24 @@ if (!admin.apps || !admin.apps.length) {
         privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
       })
     });
-    console.log('✅ Firebase инициализирован (v11)');
+    console.log('✅ Firebase инициализирован');
   } catch (error) {
-    console.error('❌ Ошибка:', error.message);
+    console.error('❌ Ошибка инициализации:', error.message);
   }
 }
 
+// ===== ОСНОВНАЯ ФУНКЦИЯ =====
 export default async function handler(req, res) {
+  // ===== CORS HEADERS =====
+  res.setHeader('Access-Control-Allow-Origin', 'https://ayo-drop.tilda.ws');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // Если это preflight-запрос (OPTIONS) — сразу отвечаем
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   const { steamId } = req.query;
 
   if (!steamId) {
