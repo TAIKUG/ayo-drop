@@ -3,12 +3,10 @@ import axios from 'axios';
 
 export default async function handler(req, res) {
   try {
-    // 1. Проверяем, что Steam вернул данные
     if (!req.query['openid.claimed_id']) {
       return res.status(400).send('Нет данных от Steam');
     }
 
-    // 2. Проверяем подлинность
     const params = { ...req.query, 'openid.mode': 'check_authentication' };
     const response = await axios.post(
       'https://steamcommunity.com/openid/login',
@@ -20,33 +18,28 @@ export default async function handler(req, res) {
       return res.status(403).send('Недействительный ответ от Steam');
     }
 
-    // 3. Получаем SteamID
-    const steamId = req.query['openid.claimed_id'].replace('http://steamcommunity.com/openid/id/', '');
+    // ✅ ВЫТАСКИВАЕМ ТОЛЬКО ЦИФРЫ STEAMID
+    const claimedId = req.query['openid.claimed_id'];
+    // Забираем всё, что после последнего слеша
+    const steamId = claimedId.split('/').pop();
 
-    // 4. Получаем данные профиля из Steam API
-    const apiKey = '661358F444F2632DDE5B819102F4C5F3'; // ← ЗАМЕНИ НА СВОЙ!
+    const apiKey = 'ТВОЙ_API_КЛЮЧ'; // ← ЗАМЕНИ!
     const profileRes = await axios.get(
       `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${apiKey}&steamids=${steamId}`
     );
     const profile = profileRes.data.response.players[0];
 
-    // 5. РЕДИРЕКТ НА TILDA
     const tildaUrl = 'https://ayo-drop.tilda.ws'; // ← ТВОЙ TILDA
     const redirectUrl = `${tildaUrl}/?auth=success&name=${encodeURIComponent(profile.personaname)}&avatar=${encodeURIComponent(profile.avatar)}&id=${steamId}`;
-    
-    // Делаем редирект через HTML
+
     res.send(`
       <!DOCTYPE html>
       <html>
-        <head>
-          <title>Вход выполнен</title>
-          <meta http-equiv="refresh" content="0;url=${redirectUrl}" />
+        <head><title>Вход выполнен</title></head>
+        <body>
           <script>
             window.location.href = '${redirectUrl}';
           </script>
-        </head>
-        <body>
-          <p>Вход выполнен! Перенаправление...</p>
         </body>
       </html>
     `);
