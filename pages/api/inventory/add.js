@@ -1,17 +1,34 @@
 // pages/api/inventory/add.js
 import admin from 'firebase-admin';
 
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
-    })
-  });
+// ===== ИНИЦИАЛИЗАЦИЯ FIREBASE =====
+if (!admin.apps || !admin.apps.length) {
+  try {
+    admin.initializeApp({
+      credential: admin.credential.cert({
+        projectId: process.env.FIREBASE_PROJECT_ID,
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+        privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
+      })
+    });
+    console.log('✅ Firebase инициализирован');
+  } catch (error) {
+    console.error('❌ Ошибка инициализации:', error.message);
+  }
 }
 
+// ===== ОСНОВНАЯ ФУНКЦИЯ =====
 export default async function handler(req, res) {
+  // ===== CORS HEADERS =====
+  res.setHeader('Access-Control-Allow-Origin', 'https://ayo-drop.tilda.ws');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // Если это preflight-запрос (OPTIONS) — сразу отвечаем
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   // Разрешаем только POST запросы
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Метод не разрешён' });
@@ -27,7 +44,6 @@ export default async function handler(req, res) {
     const docRef = admin.firestore().collection('inventory').doc(steamId);
     const doc = await docRef.get();
 
-    // Добавляем каждому предмету уникальный ID и время получения
     const newItems = items.map(item => ({
       ...item,
       id: `${Date.now()}_${Math.random().toString(36).substring(7)}`,
@@ -35,13 +51,11 @@ export default async function handler(req, res) {
     }));
 
     if (doc.exists) {
-      // Если документ есть — добавляем новые предметы в массив
       await docRef.update({
         items: admin.firestore.FieldValue.arrayUnion(...newItems),
         lastUpdated: new Date().toISOString()
       });
     } else {
-      // Если документа нет — создаём новый
       await docRef.set({
         items: newItems,
         lastUpdated: new Date().toISOString()
@@ -50,7 +64,7 @@ export default async function handler(req, res) {
 
     res.json({ success: true, added: newItems.length });
   } catch (error) {
-    console.error('Ошибка добавления скинов:', error);
-    res.status(500).json({ error: 'Ошибка сервера' });
+    console.error('❌ Ошибка добавления скинов:', error);
+    res.status(500).json({ error: 'Ошибка сервера', message: error.message });
   }
 }
