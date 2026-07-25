@@ -1,9 +1,7 @@
 // pages/api/inventory/get.js
-
-// 🔥 Для версии 14.2.0 используем другой импорт
 import admin from 'firebase-admin';
 
-// Проверяем, что Firebase инициализирован
+// Если Firebase не инициализирован — инициализируем
 if (!admin.apps || !admin.apps.length) {
   try {
     admin.initializeApp({
@@ -13,7 +11,7 @@ if (!admin.apps || !admin.apps.length) {
         privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
       })
     });
-    console.log('✅ Firebase инициализирован (v14.2.0)');
+    console.log('✅ Firebase инициализирован');
   } catch (error) {
     console.error('❌ Ошибка инициализации:', error.message);
   }
@@ -27,9 +25,11 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Используем admin.firestore() напрямую
     const db = admin.firestore();
     const doc = await db.collection('inventory').doc(steamId).get();
     const items = doc.exists ? doc.data().items || [] : [];
+
     res.json({ items });
   } catch (error) {
     console.error('❌ Ошибка получения инвентаря:', error.message);
