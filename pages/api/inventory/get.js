@@ -1,9 +1,6 @@
 // pages/api/inventory/get.js
+import admin from 'firebase-admin';
 
-// ✅ ПРАВИЛЬНЫЙ импорт для firebase-admin 14.x.x
-import * as admin from 'firebase-admin';
-
-// Проверяем, инициализирован ли Firebase
 if (!admin.apps || !admin.apps.length) {
   try {
     admin.initializeApp({
@@ -13,9 +10,9 @@ if (!admin.apps || !admin.apps.length) {
         privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
       })
     });
-    console.log('✅ Firebase инициализирован');
+    console.log('✅ Firebase инициализирован (v11)');
   } catch (error) {
-    console.error('❌ Ошибка инициализации:', error.message);
+    console.error('❌ Ошибка:', error.message);
   }
 }
 
