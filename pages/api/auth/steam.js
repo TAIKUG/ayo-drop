@@ -1,6 +1,6 @@
 // pages/api/auth/steam.js
 export default function handler(req, res) {
-  const siteUrl = 'https://ayo-drop-2rhrt5r3h-ayo-drop.vercel.app'; // ← В КАВЫЧКАХ И С https://
+  const siteUrl = 'https://ayo-drop.vercel.app'; // ← В КАВЫЧКАХ И С https://
 
   const returnUrl = `${siteUrl}/api/auth/steam-callback`;
   const realm = siteUrl;
