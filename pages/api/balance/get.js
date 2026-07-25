@@ -11,12 +11,11 @@ if (!admin.apps || !admin.apps.length) {
       })
     });
   } catch (error) {
-    console.error('❌ Ошибка:', error.message);
+    console.error('Ошибка инициализации:', error.message);
   }
 }
 
 export default async function handler(req, res) {
-  // ===== CORS HEADERS =====
   res.setHeader('Access-Control-Allow-Origin', 'https://ayo-drop.tilda.ws');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -36,7 +35,7 @@ export default async function handler(req, res) {
     const balance = doc.exists ? doc.data().balance || 0 : 0;
     res.json({ balance });
   } catch (error) {
-    console.error('❌ Ошибка:', error.message);
-    res.status(500).json({ error: 'Ошибка сервера', message: error.message });
+    console.error('Ошибка получения баланса:', error);
+    res.status(500).json({ error: 'Ошибка сервера' });
   }
 }
