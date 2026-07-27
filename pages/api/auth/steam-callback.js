@@ -21,10 +21,7 @@ export default async function handler(req, res) {
     const claimedId = req.query['openid.claimed_id'];
     const steamId = claimedId.split('/').pop();
 
-    // ✅ ЗДЕСЬ ТВОЙ API КЛЮЧ
-    const apiKey = '661358F444F2632DDE5B819102F4C5F3'; // ← ТВОЙ КЛЮЧ!
-    
-    // ✅ ПРАВИЛЬНЫЙ ЗАПРОС К STEAM API
+    const apiKey = '661358F444F2632DDE5B819102F4C5F3';
     const profileRes = await axios.get(
       `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${apiKey}&steamids=${steamId}`
     );
@@ -36,14 +33,19 @@ export default async function handler(req, res) {
 
     // ✅ ПРОВЕРЯЕМ, ОТКУДА ПРИШЁЛ ПОЛЬЗОВАТЕЛЬ
     const redirectTo = req.query.redirect || '/';
+    const vercelUrl = 'https://ayo-drop.vercel.app';
     const tildaUrl = 'https://ayo-drop.tilda.ws';
-    
+
+    // Если пользователь хочет на админку — редиректим на Vercel
+    let baseUrl = tildaUrl;
     let redirectPath = redirectTo;
-    if (redirectTo === '/admin') {
+
+    if (redirectTo === '/admin' || redirectTo.startsWith('/admin')) {
+      baseUrl = vercelUrl;
       redirectPath = '/admin';
     }
 
-    const redirectUrl = `${tildaUrl}${redirectPath}?auth=success&name=${encodeURIComponent(profile.personaname)}&avatar=${encodeURIComponent(profile.avatar)}&id=${steamId}`;
+    const redirectUrl = `${baseUrl}${redirectPath}?auth=success&name=${encodeURIComponent(profile.personaname)}&avatar=${encodeURIComponent(profile.avatar)}&id=${steamId}`;
 
     res.send(`
       <!DOCTYPE html>
