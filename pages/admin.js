@@ -9,11 +9,9 @@ export default function AdminPanel() {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [user, setUser] = useState(null);
 
-  // ⚠️ ТВОЙ STEAM ID
   const ADMIN_STEAM_ID = '76561199477971848';
 
   useEffect(() => {
-    // Проверяем параметры в URL (после возврата из Steam)
     const urlParams = new URLSearchParams(window.location.search);
     const auth = urlParams.get('auth');
     const name = urlParams.get('name');
@@ -57,6 +55,7 @@ export default function AdminPanel() {
     }
   }
 
+  // ✅ ВЫДАТЬ БАЛАНС
   async function giveBalance(steamId, amount) {
     if (!steamId || !amount || amount <= 0) {
       alert('Введите сумму');
@@ -81,7 +80,35 @@ export default function AdminPanel() {
     }
   }
 
-  // ===== ФУНКЦИЯ ДЛЯ ВХОДА ЧЕРЕЗ STEAM =====
+  // ✅ СПИСАТЬ БАЛАНС
+  async function subtractBalance(steamId, amount) {
+    if (!steamId || !amount || amount <= 0) {
+      alert('Неверная сумма');
+      return;
+    }
+
+    if (!confirm(`Списать ${amount} ₽ у пользователя ${steamId}?`)) {
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/admin/subtract-balance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ steamId, amount })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(`✅ ${amount} ₽ списано у пользователя ${steamId}`);
+        loadUsers();
+      } else {
+        alert('❌ Ошибка: ' + data.error);
+      }
+    } catch (error) {
+      alert('❌ Ошибка запроса');
+    }
+  }
+
   function goToSteamLogin() {
     window.location.href = '/api/auth/steam';
   }
@@ -103,7 +130,6 @@ export default function AdminPanel() {
               color: '#fff',
               borderRadius: '30px',
               border: 'none',
-              textDecoration: 'none',
               fontWeight: 'bold',
               cursor: 'pointer',
               fontSize: '16px'
@@ -198,18 +224,32 @@ export default function AdminPanel() {
                       <td style={{ padding: '12px', fontFamily: 'monospace', fontSize: '13px' }}>{user.uid}</td>
                       <td style={{ padding: '12px', color: '#45e0a8', fontWeight: 'bold' }}>{user.balance?.toFixed(2) || '0.00'} ₽</td>
                       <td style={{ padding: '12px' }}>
+                        {/* ✅ КНОПКИ + БАЛАНС */}
                         <button 
                           onClick={() => giveBalance(user.uid, 100)}
                           style={{ background: 'rgba(69,224,168,0.1)', border: '1px solid rgba(69,224,168,0.2)', color: '#45e0a8', padding: '4px 12px', borderRadius: '999px', cursor: 'pointer', fontSize: '12px', marginRight: '8px' }}
                         >+100</button>
                         <button 
                           onClick={() => giveBalance(user.uid, 500)}
-                          style={{ background: 'rgba(69,224,168,0.1)', border: '1px solid rgba(69,224,168,0.2)', color: '#45e0a8', padding: '4px 12px', borderRadius: '999px', cursor: 'pointer', fontSize: '12px' }}
+                          style={{ background: 'rgba(69,224,168,0.1)', border: '1px solid rgba(69,224,168,0.2)', color: '#45e0a8', padding: '4px 12px', borderRadius: '999px', cursor: 'pointer', fontSize: '12px', marginRight: '8px' }}
                         >+500</button>
                         <button 
                           onClick={() => giveBalance(user.uid, 1000)}
-                          style={{ background: 'rgba(69,224,168,0.1)', border: '1px solid rgba(69,224,168,0.2)', color: '#45e0a8', padding: '4px 12px', borderRadius: '999px', cursor: 'pointer', fontSize: '12px' }}
+                          style={{ background: 'rgba(69,224,168,0.1)', border: '1px solid rgba(69,224,168,0.2)', color: '#45e0a8', padding: '4px 12px', borderRadius: '999px', cursor: 'pointer', fontSize: '12px', marginRight: '8px' }}
                         >+1000</button>
+                        {/* ✅ КНОПКИ - БАЛАНС */}
+                        <button 
+                          onClick={() => subtractBalance(user.uid, 100)}
+                          style={{ background: 'rgba(255,69,69,0.1)', border: '1px solid rgba(255,69,69,0.2)', color: '#ff4545', padding: '4px 12px', borderRadius: '999px', cursor: 'pointer', fontSize: '12px', marginRight: '8px' }}
+                        >-100</button>
+                        <button 
+                          onClick={() => subtractBalance(user.uid, 500)}
+                          style={{ background: 'rgba(255,69,69,0.1)', border: '1px solid rgba(255,69,69,0.2)', color: '#ff4545', padding: '4px 12px', borderRadius: '999px', cursor: 'pointer', fontSize: '12px', marginRight: '8px' }}
+                        >-500</button>
+                        <button 
+                          onClick={() => subtractBalance(user.uid, 1000)}
+                          style={{ background: 'rgba(255,69,69,0.1)', border: '1px solid rgba(255,69,69,0.2)', color: '#ff4545', padding: '4px 12px', borderRadius: '999px', cursor: 'pointer', fontSize: '12px' }}
+                        >-1000</button>
                       </td>
                     </tr>
                   ))}
