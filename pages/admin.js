@@ -76,7 +76,7 @@ export default function AdminPanel() {
         <div style={{ background: 'rgba(18,21,34,0.6)', padding: '40px', borderRadius: '20px', maxWidth: '400px', width: '100%', textAlign: 'center' }}>
           <h2>🔐 Админ-панель</h2>
           <p style={{ color: '#6f7689', marginTop: '12px' }}>Войдите через Steam, чтобы получить доступ</p>
-          <a href="/api/auth/steam" target="_blank" style={{
+          <a href="/api/auth/steam?redirect=/admin" target="_blank" style={{
             display: 'inline-block',
             marginTop: '20px',
             padding: '12px 30px',
