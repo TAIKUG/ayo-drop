@@ -31,11 +31,23 @@ export default async function handler(req, res) {
       return res.status(404).send('Профиль не найден');
     }
 
-    // ✅ ПРОСТОЙ РЕДИРЕКТ НА VERCEL С ПАРАМЕТРАМИ
-    const vercelUrl = 'https://ayo-drop.vercel.app/admin';
-    const redirectUrl = `${vercelUrl}?auth=success&name=${encodeURIComponent(profile.personaname)}&avatar=${encodeURIComponent(profile.avatar)}&id=${steamId}`;
+    // ✅ ОПРЕДЕЛЯЕМ, ОТКУДА ПРИШЁЛ ПОЛЬЗОВАТЕЛЬ
+    const redirectTo = req.query.redirect || '/';
+    const vercelUrl = 'https://ayo-drop.vercel.app';
+    const tildaUrl = 'https://ayo-drop.tilda.ws';
 
-    // ✅ ВСЕГДА РЕДИРЕКТИМ НА VERCEL
+    // Если пользователь пришёл с админки — редиректим на Vercel админку
+    // Иначе — на Tilda
+    let baseUrl = tildaUrl;
+    let redirectPath = redirectTo;
+
+    if (redirectTo === '/admin' || redirectTo.startsWith('/admin')) {
+      baseUrl = vercelUrl;
+      redirectPath = '/admin';
+    }
+
+    const redirectUrl = `${baseUrl}${redirectPath}?auth=success&name=${encodeURIComponent(profile.personaname)}&avatar=${encodeURIComponent(profile.avatar)}&id=${steamId}`;
+
     res.send(`
       <!DOCTYPE html>
       <html>
