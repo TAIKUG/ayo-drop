@@ -31,22 +31,9 @@ export default async function handler(req, res) {
       return res.status(404).send('Профиль не найден');
     }
 
-    // ✅ ОПРЕДЕЛЯЕМ, ОТКУДА ПРИШЁЛ ПОЛЬЗОВАТЕЛЬ
-    const redirectTo = req.query.redirect || '/';
-    const vercelUrl = 'https://ayo-drop.vercel.app';
+    // ✅ ВСЕГДА РЕДИРЕКТИМ НА TILDA С ПАРАМЕТРАМИ
     const tildaUrl = 'https://ayo-drop.tilda.ws';
-
-    // Если пользователь пришёл с админки — редиректим на Vercel админку
-    // Иначе — на Tilda
-    let baseUrl = tildaUrl;
-    let redirectPath = redirectTo;
-
-    if (redirectTo === '/admin' || redirectTo.startsWith('/admin')) {
-      baseUrl = vercelUrl;
-      redirectPath = '/admin';
-    }
-
-    const redirectUrl = `${baseUrl}${redirectPath}?auth=success&name=${encodeURIComponent(profile.personaname)}&avatar=${encodeURIComponent(profile.avatar)}&id=${steamId}`;
+    const redirectUrl = `${tildaUrl}/?auth=success&name=${encodeURIComponent(profile.personaname)}&avatar=${encodeURIComponent(profile.avatar)}&id=${steamId}`;
 
     res.send(`
       <!DOCTYPE html>
@@ -54,7 +41,20 @@ export default async function handler(req, res) {
         <head><title>Вход выполнен</title></head>
         <body>
           <script>
-            window.location.href = '${redirectUrl}';
+            // ✅ СОХРАНЯЕМ ДАННЫЕ В localStorage
+            localStorage.setItem('steam_user', JSON.stringify({
+              name: '${profile.personaname}',
+              avatar: '${profile.avatar}',
+              uid: '${steamId}'
+            }));
+            // ✅ ПРОВЕРЯЕМ, ЕСТЬ ЛИ МЕТКА АДМИНКИ
+            const isAdmin = localStorage.getItem('admin_redirect') === 'true';
+            if (isAdmin) {
+              localStorage.removeItem('admin_redirect');
+              window.location.href = 'https://ayo-drop.vercel.app/admin';
+            } else {
+              window.location.href = '${redirectUrl}';
+            }
           </script>
         </body>
       </html>

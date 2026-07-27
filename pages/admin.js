@@ -11,37 +11,26 @@ export default function AdminPanel() {
 
   const ADMIN_STEAM_ID = '76561199477971848';
 
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const auth = urlParams.get('auth');
-    const name = urlParams.get('name');
-    const avatar = urlParams.get('avatar');
-    const id = urlParams.get('id');
-
-    if (auth === 'success' && name && id) {
-      localStorage.setItem('steam_user', JSON.stringify({ name, avatar, uid: id }));
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-
-    const userData = localStorage.getItem('steam_user');
-    if (userData) {
-      try {
-        const parsed = JSON.parse(userData);
-        setUser(parsed);
-        if (parsed.uid === ADMIN_STEAM_ID) {
-          setIsAuthorized(true);
-          loadUsers();
-        } else {
-          setIsAuthorized(false);
-        }
-      } catch (e) {
+useEffect(() => {
+  const userData = localStorage.getItem('steam_user');
+  if (userData) {
+    try {
+      const parsed = JSON.parse(userData);
+      setUser(parsed);
+      if (parsed.uid === ADMIN_STEAM_ID) {
+        setIsAuthorized(true);
+        loadUsers();
+      } else {
         setIsAuthorized(false);
       }
-    } else {
+    } catch (e) {
       setIsAuthorized(false);
     }
-    setLoading(false);
-  }, []);
+  } else {
+    setIsAuthorized(false);
+  }
+  setLoading(false);
+}, []);
 
   async function loadUsers() {
     try {
@@ -109,9 +98,10 @@ export default function AdminPanel() {
     }
   }
 
-  function goToSteamLogin() {
+function goToSteamLogin() {
+    localStorage.setItem('admin_redirect', 'true');
     window.location.href = '/api/auth/steam';
-  }
+}
 
   // ===== НЕ АВТОРИЗОВАН =====
   if (!user) {
