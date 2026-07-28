@@ -9,28 +9,33 @@ export default function AdminPanel() {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [user, setUser] = useState(null);
 
-  const ADMIN_STEAM_ID = '76561199477971848';
+  // ✅ МАССИВ АДМИНОВ (добавляй сюда Steam ID)
+  const ADMIN_STEAM_IDS = [
+    '76561199477971848',  // ← ТВОЙ
+    '76561199826333690',  // ← ДРУГОЙ АДМИН (замени на реальный ID)
+  ];
 
-useEffect(() => {
-  const userData = localStorage.getItem('steam_user');
-  if (userData) {
-    try {
-      const parsed = JSON.parse(userData);
-      setUser(parsed);
-      if (parsed.uid === ADMIN_STEAM_ID) {
-        setIsAuthorized(true);
-        loadUsers();
-      } else {
+  useEffect(() => {
+    const userData = localStorage.getItem('steam_user');
+    if (userData) {
+      try {
+        const parsed = JSON.parse(userData);
+        setUser(parsed);
+        // ✅ ПРОВЕРЯЕМ, ЕСТЬ ЛИ ID В МАССИВЕ АДМИНОВ
+        if (ADMIN_STEAM_IDS.includes(parsed.uid)) {
+          setIsAuthorized(true);
+          loadUsers();
+        } else {
+          setIsAuthorized(false);
+        }
+      } catch (e) {
         setIsAuthorized(false);
       }
-    } catch (e) {
+    } else {
       setIsAuthorized(false);
     }
-  } else {
-    setIsAuthorized(false);
-  }
-  setLoading(false);
-}, []);
+    setLoading(false);
+  }, []);
 
   async function loadUsers() {
     try {
@@ -98,10 +103,10 @@ useEffect(() => {
     }
   }
 
-function goToSteamLogin() {
+  function goToSteamLogin() {
     localStorage.setItem('admin_redirect', 'true');
     window.location.href = '/api/auth/steam';
-}
+  }
 
   // ===== НЕ АВТОРИЗОВАН =====
   if (!user) {
@@ -131,7 +136,7 @@ function goToSteamLogin() {
   }
 
   // ===== АВТОРИЗОВАН, НО НЕ АДМИН =====
-  if (user && user.uid !== ADMIN_STEAM_ID) {
+  if (user && !ADMIN_STEAM_IDS.includes(user.uid)) {
     return (
       <div style={{ background: '#0a0b14', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#fff', fontFamily: 'Arial' }}>
         <div style={{ background: 'rgba(18,21,34,0.6)', padding: '40px', borderRadius: '20px', maxWidth: '400px', width: '100%', textAlign: 'center' }}>
