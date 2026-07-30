@@ -51,7 +51,6 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: 'Скин не найден' });
     }
 
-    // Удаляем скин
     inventory.splice(itemIndex, 1);
     await userRef.update({ inventory: inventory });
 
