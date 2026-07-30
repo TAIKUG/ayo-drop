@@ -51,19 +51,13 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: 'Скин не найден' });
     }
 
-    // Удаляем скин (сжигаем)
     inventory.splice(itemIndex, 1);
     await userRef.update({ inventory: inventory });
 
-    res.json({ success: true });
+    return res.json({ success: true });
 
   } catch (error) {
     console.error('Ошибка сжигания скина:', error);
-    res.status(500).json({ error: 'Ошибка сервера' });
-  }
-}
-  } catch (error) {
-    console.error('❌ Ошибка продажи:', error);
-    res.status(500).json({ error: 'Ошибка сервера', message: error.message });
+    return res.status(500).json({ error: 'Ошибка сервера' });
   }
 }
