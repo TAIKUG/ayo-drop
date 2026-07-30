@@ -16,7 +16,6 @@ if (!admin.apps || !admin.apps.length) {
 }
 
 export default async function handler(req, res) {
-  // Разрешаем CORS для Tilda
   res.setHeader('Access-Control-Allow-Origin', 'https://ayo-drop.tilda.ws');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -31,10 +30,7 @@ export default async function handler(req, res) {
 
   const { steamId, itemId } = req.body;
 
-  console.log('🔥 burn.js вызван для:', steamId, 'itemId:', itemId);
-
   if (!steamId || !itemId) {
-    console.log('❌ Неверные данные');
     return res.status(400).json({ error: 'Неверные данные' });
   }
 
@@ -43,15 +39,13 @@ export default async function handler(req, res) {
     const doc = await userRef.get();
 
     if (!doc.exists) {
-      console.log('❌ Пользователь не найден');
       return res.status(404).json({ error: 'Пользователь не найден' });
     }
 
     const userData = doc.data();
     const inventory = userData.inventory || [];
 
-    console.log('📦 Инвентарь до удаления:', inventory.length);
-
+    // Находим индекс скина
     const itemIndex = inventory.findIndex(item => item.id === itemId);
 
     if (itemIndex === -1) {
@@ -59,25 +53,26 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: 'Скин не найден' });
     }
 
-    // Удаляем скин
+    // ✅ УДАЛЯЕМ СКИН (ОДИН РАЗ!)
     const removedItem = inventory.splice(itemIndex, 1);
-    console.log('🗑️ Удалён скин:', removedItem[0]?.name);
+    console.log('🗑️ Удалён скин:', removedItem[0]?.name || 'неизвестный');
 
+    // Сохраняем обновлённый инвентарь
     await userRef.update({ inventory: inventory });
 
     console.log('✅ Инвентарь обновлён, осталось:', inventory.length);
 
-    return res.status(200).json({ 
-      success: true, 
+    return res.status(200).json({
+      success: true,
       message: 'Скин сожжён',
-      remaining: inventory.length 
+      remaining: inventory.length
     });
 
   } catch (error) {
     console.error('❌ Ошибка сжигания:', error);
-    return res.status(500).json({ 
-      error: 'Ошибка сервера', 
-      message: error.message 
+    return res.status(500).json({
+      error: 'Ошибка сервера',
+      message: error.message
     });
   }
 }
