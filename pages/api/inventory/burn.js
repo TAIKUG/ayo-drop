@@ -59,12 +59,12 @@ export default async function handler(req, res) {
     await userRef.update({ inventory: inventory });
 
     res.json({ success: true });
+
   } catch (error) {
     console.error('Ошибка сжигания скина:', error);
     res.status(500).json({ error: 'Ошибка сервера' });
   }
 }
-
     res.json({ success: true, item: soldItem });
   } catch (error) {
     console.error('❌ Ошибка продажи:', error);
