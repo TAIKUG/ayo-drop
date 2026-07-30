@@ -16,6 +16,7 @@ if (!admin.apps || !admin.apps.length) {
 }
 
 export default async function handler(req, res) {
+  // Разрешаем CORS для Tilda
   res.setHeader('Access-Control-Allow-Origin', 'https://ayo-drop.tilda.ws');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -30,7 +31,10 @@ export default async function handler(req, res) {
 
   const { steamId, itemId } = req.body;
 
+  console.log('🔥 burn.js вызван для:', steamId, 'itemId:', itemId);
+
   if (!steamId || !itemId) {
+    console.log('❌ Неверные данные');
     return res.status(400).json({ error: 'Неверные данные' });
   }
 
@@ -39,25 +43,41 @@ export default async function handler(req, res) {
     const doc = await userRef.get();
 
     if (!doc.exists) {
+      console.log('❌ Пользователь не найден');
       return res.status(404).json({ error: 'Пользователь не найден' });
     }
 
     const userData = doc.data();
     const inventory = userData.inventory || [];
 
+    console.log('📦 Инвентарь до удаления:', inventory.length);
+
     const itemIndex = inventory.findIndex(item => item.id === itemId);
 
     if (itemIndex === -1) {
+      console.log('❌ Скин не найден в инвентаре');
       return res.status(404).json({ error: 'Скин не найден' });
     }
 
-    inventory.splice(itemIndex, 1);
+    // Удаляем скин
+    const removedItem = inventory.splice(itemIndex, 1);
+    console.log('🗑️ Удалён скин:', removedItem[0]?.name);
+
     await userRef.update({ inventory: inventory });
 
-    return res.json({ success: true });
+    console.log('✅ Инвентарь обновлён, осталось:', inventory.length);
+
+    return res.status(200).json({ 
+      success: true, 
+      message: 'Скин сожжён',
+      remaining: inventory.length 
+    });
 
   } catch (error) {
-    console.error('Ошибка сжигания скина:', error);
-    return res.status(500).json({ error: 'Ошибка сервера' });
+    console.error('❌ Ошибка сжигания:', error);
+    return res.status(500).json({ 
+      error: 'Ошибка сервера', 
+      message: error.message 
+    });
   }
 }
