@@ -45,17 +45,14 @@ export default async function handler(req, res) {
     const userData = doc.data();
     const inventory = userData.inventory || [];
 
-    // Находим индекс скина
     const itemIndex = inventory.findIndex(item => item.id === itemId);
 
     if (itemIndex === -1) {
       return res.status(404).json({ error: 'Скин не найден' });
     }
 
-    // Удаляем скин из массива (сжигаем)
+    // Удаляем скин (сжигаем)
     inventory.splice(itemIndex, 1);
-
-    // Сохраняем обновлённый инвентарь
     await userRef.update({ inventory: inventory });
 
     res.json({ success: true });
@@ -65,7 +62,6 @@ export default async function handler(req, res) {
     res.status(500).json({ error: 'Ошибка сервера' });
   }
 }
-    res.json({ success: true, item: soldItem });
   } catch (error) {
     console.error('❌ Ошибка продажи:', error);
     res.status(500).json({ error: 'Ошибка сервера', message: error.message });
