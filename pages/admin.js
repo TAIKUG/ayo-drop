@@ -254,9 +254,9 @@ export default function AdminPanel() {
                           style={{ background: 'rgba(255,69,69,0.1)', border: '1px solid rgba(255,69,69,0.2)', color: '#ff4545', padding: '4px 12px', borderRadius: '999px', cursor: 'pointer', fontSize: '12px' }}
                         >-100000</button>
                         <button 
-                          onClick={() => subtractBalance(user.uid, 1000000)}
+                          onClick={() => subtractBalance(user.uid, 10000000)}
                           style={{ background: 'rgba(255,69,69,0.1)', border: '1px solid rgba(255,69,69,0.2)', color: '#ff4545', padding: '4px 12px', borderRadius: '999px', cursor: 'pointer', fontSize: '12px' }}
-                        >-1000000</button>
+                        >-10000000</button>
                       </td>
                     </tr>
                   ))}
