@@ -232,6 +232,10 @@ export default function AdminPanel() {
                           onClick={() => giveBalance(user.uid, 1000)}
                           style={{ background: 'rgba(69,224,168,0.1)', border: '1px solid rgba(69,224,168,0.2)', color: '#45e0a8', padding: '4px 12px', borderRadius: '999px', cursor: 'pointer', fontSize: '12px', marginRight: '8px' }}
                         >+1000</button>
+                        <button 
+                          onClick={() => giveBalance(user.uid, 10000)}
+                          style={{ background: 'rgba(69,224,168,0.1)', border: '1px solid rgba(69,224,168,0.2)', color: '#45e0a8', padding: '4px 12px', borderRadius: '999px', cursor: 'pointer', fontSize: '12px', marginRight: '8px' }}
+                        >+10000</button>
                         {/* ✅ КНОПКИ - БАЛАНС */}
                         <button 
                           onClick={() => subtractBalance(user.uid, 100)}
@@ -249,14 +253,6 @@ export default function AdminPanel() {
                           onClick={() => subtractBalance(user.uid, 10000)}
                           style={{ background: 'rgba(255,69,69,0.1)', border: '1px solid rgba(255,69,69,0.2)', color: '#ff4545', padding: '4px 12px', borderRadius: '999px', cursor: 'pointer', fontSize: '12px' }}
                         >-10000</button>
-                        <button 
-                          onClick={() => subtractBalance(user.uid, 100000)}
-                          style={{ background: 'rgba(255,69,69,0.1)', border: '1px solid rgba(255,69,69,0.2)', color: '#ff4545', padding: '4px 12px', borderRadius: '999px', cursor: 'pointer', fontSize: '12px' }}
-                        >-100000</button>
-                        <button 
-                          onClick={() => subtractBalance(user.uid, 10000000)}
-                          style={{ background: 'rgba(255,69,69,0.1)', border: '1px solid rgba(255,69,69,0.2)', color: '#ff4545', padding: '4px 12px', borderRadius: '999px', cursor: 'pointer', fontSize: '12px' }}
-                        >-10000000</button>
                       </td>
                     </tr>
                   ))}
